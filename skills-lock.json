@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "file-uploads": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "a11c5eb9db772c532bdea215b9eb8f2583e1fda0f5506e52a139717f9446ab3a"
+    },
+    "landing-page": {
+      "source": "jezweb/claude-skills",
+      "sourceType": "github",
+      "computedHash": "b449315b1b11d92b876c03fc8d0c5fd134f7a7f1c40592a13034951ee1eb15f8"
+    },
+    "nextjs-app-router-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "d2f0a7065f7418fdb3ae88559f1f1426f40c26f2b5aebcd394797418d4bb3b04"
+    },
+    "shadcn-ui": {
+      "source": "jezweb/claude-skills",
+      "sourceType": "github",
+      "computedHash": "3c80c7348aaab81e251ae73df8413d41348c3f5fbd0fc1cb398dd423ea7df020"
+    }
+  }
+}
