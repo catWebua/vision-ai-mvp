@@ -1,74 +1,123 @@
 import modal
-from fastapi import FastAPI, Request, HTTPException
-from pydantic import BaseModel
 import io
-import requests
+import os
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-# Define the Modal App
-app = modal.App("vision-mvp")
+# Function to ONLY download files to cache
+def download_model():
+    from huggingface_hub import snapshot_download
+    os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+    print("Downloading model to cache...")
+    snapshot_download("vikhyatk/moondream2", revision="2024-08-26", max_workers=8)
+    snapshot_download("moondream/starmie-v1", max_workers=8)
 
-# Define the container image with necessary dependencies
+# 1. Define image with the most stable versions for moondream
 image = (
-    modal.Image.debian_slim()
+    modal.Image.debian_slim(python_version="3.11")
     .pip_install(
-        "transformers",
-        "pillow",
-        "torch",
+        "transformers==4.44.2",
+        "tokenizers==0.19.1",
+        "accelerate",     
+        "torch", 
+        "torchvision",
+        "pillow", 
+        "fastapi", 
+        "uvicorn", 
+        "python-multipart", 
         "einops",
-        "accelerate",
-        "fastapi",
-        "pydantic"
+        "requests",
+        "httpx",
+        "huggingface_hub",
+        "deep-translator"
     )
+    .run_function(download_model) 
 )
 
-# Persistent volume for model weights
-volume = modal.Volume.from_name("vision-model-cache", create_if_missing=True)
+app = modal.App("vision-mvp-v2") # Changed name to force fresh start
+web_app = FastAPI()
+
+# Add CORS
+web_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class VisionRequest(BaseModel):
     image_url: str
     prompt: str = "Describe this image in detail."
+    language: str = "en"
 
 @app.cls(
     image=image,
     gpu="A10G",
-    volumes={"/root/.cache/huggingface": volume},
-    timeout=600,
+    scaledown_window=300,
 )
 class Model:
     @modal.enter()
     def setup(self):
         from transformers import AutoModelForCausalLM, AutoTokenizer
+        import torch
+        
+        print("🚀 Инициализация модели из кеша HuggingFace...")
+        import time
+        start_load = time.time()
         
         model_id = "vikhyatk/moondream2"
-        revision = "2024-08-05"  # Pin revision for stability
-        
-        print("Loading model...")
+        # Load from cache
         self.model = AutoModelForCausalLM.from_pretrained(
             model_id, 
             trust_remote_code=True, 
-            revision=revision,
-            device_map="auto"
-        )
-        self.tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
-        print("Model loaded.")
+            torch_dtype=torch.float16,
+            revision="2024-08-26",
+        ).to("cuda")
+            
+        self.tokenizer = AutoTokenizer.from_pretrained(model_id, revision="2024-08-26")
+        self.model.eval()
+        print(f"✅ Модель готова за {time.time() - start_load:.2f}с.")
 
     @modal.method()
-    def predict(self, image_url: str, prompt: str):
+    async def predict(self, image_url: str, prompt: str):
         from PIL import Image
+        import httpx
+        import io
+        import torch
+        import time
         
-        print(f"Processing image: {image_url}")
+        start_inf = time.time()
+        print(f"Analyzing image: {image_url}")
         try:
-            response = requests.get(image_url, timeout=10)
+            async with httpx.AsyncClient() as client:
+                response = await client.get(image_url, timeout=10)
             img = Image.open(io.BytesIO(response.content))
         except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Failed to load image: {str(e)}")
+            return f"Error loading image: {str(e)}"
 
-        enc_image = self.model.encode_image(img)
-        answer = self.model.answer_question(enc_image, prompt, self.tokenizer)
-        return {"answer": answer}
+        with torch.no_grad():
+            image_embeds = self.model.encode_image(img)
+            answer = self.model.answer_question(image_embeds, prompt, self.tokenizer)
+        
+        print(f"Inference completed in {time.time() - start_inf:.2f}s.")
+        return answer
+
+@web_app.get("/")
+def health():
+    return {"status": "running", "model": "moondream2"}
+
+@web_app.post("/analyze")
+async def analyze_endpoint(request: VisionRequest):
+    model = Model()
+    answer = await model.predict.remote.aio(request.image_url, request.prompt)
+    if request.language == "uk":
+        from deep_translator import GoogleTranslator
+        answer = GoogleTranslator(source='auto', target='uk').translate(answer)
+    return {"answer": answer}
 
 @app.function(image=image)
-@modal.web_endpoint(method="POST")
-def analyze(request: VisionRequest):
-    model = Model()
-    return model.predict.remote(request.image_url, request.prompt)
+@modal.asgi_app(label="analyze-v2")
+def vision_server():
+    return web_app

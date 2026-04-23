@@ -3,28 +3,48 @@
 import { put } from "@vercel/blob"
 import { revalidatePath } from "next/cache"
 
+export const maxDuration = 60; // Increase timeout to 60 seconds
+
 export async function uploadImage(formData: FormData) {
-  const file = formData.get("image") as File
-  if (!file) {
-    throw new Error("No file provided")
-  }
-
-  // 1. Upload to Vercel Blob
-  const blob = await put(file.name, file, {
-    access: "public",
-  })
-
-  const modalUrl = process.env.MODAL_API_URL
-  if (!modalUrl) {
-    return {
-      success: true,
-      imageUrl: blob.url,
-      analysis: "Modal API URL not configured. Image uploaded successfully to " + blob.url,
-    }
-  }
-
-  // 2. Call Modal API
   try {
+    const startTime = Date.now();
+    console.log("Starting upload process...");
+    
+    const file = formData.get("image") as File
+    if (!file) {
+      return { success: false, imageUrl: "", analysis: "No file provided" }
+    }
+
+    // 1. Upload to Vercel Blob with explicit token
+    const token = process.env.BLOB_READ_WRITE_TOKEN
+    if (!token) {
+      return { 
+        success: false, 
+        imageUrl: "", 
+        analysis: "Error: BLOB_READ_WRITE_TOKEN is missing on the server." 
+      }
+    }
+
+    console.log("Uploading to Vercel Blob...");
+    const blob = await put(file.name, file, {
+      access: "public",
+      token: token,
+      addRandomSuffix: true,
+    })
+    const uploadTime = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log(`Blob uploaded in ${uploadTime}s:`, blob.url);
+
+    const modalUrl = process.env.MODAL_API_URL
+    if (!modalUrl) {
+      return {
+        success: true,
+        imageUrl: blob.url,
+        analysis: "Modal API URL not configured. Image uploaded to " + blob.url,
+      }
+    }
+
+    // 2. Call Modal API
+    console.log("Calling Modal API at:", modalUrl);
     const response = await fetch(modalUrl, {
       method: "POST",
       headers: {
@@ -38,7 +58,11 @@ export async function uploadImage(formData: FormData) {
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`Modal API error: ${errorText}`)
+      return {
+        success: true,
+        imageUrl: blob.url,
+        analysis: `AI is offline or busy. Image saved at: ${blob.url}. Error: ${errorText}`,
+      }
     }
 
     const data = await response.json()
@@ -50,11 +74,11 @@ export async function uploadImage(formData: FormData) {
       analysis: data.answer,
     }
   } catch (error: any) {
-    console.error("Error calling Modal:", error)
+    console.error("Global upload error:", error)
     return {
-      success: true,
-      imageUrl: blob.url,
-      analysis: "Error analyzing image: " + error.message,
+      success: false,
+      imageUrl: "",
+      analysis: "Critical error: " + (error.message || "Unknown error"),
     }
   }
 }

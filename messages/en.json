@@ -1,0 +1,37 @@
+{
+  "Header": {
+    "title": "VisionApp",
+    "features": "Features",
+    "howItWorks": "How it works"
+  },
+  "Home": {
+    "badge": "Experience the magic of AI",
+    "title": "Give your <highlight>memories</highlight> a voice",
+    "subtitle": "Every photo hides a story waiting to be told. Let our AI breathe life into your images and describe the magic captured within them.",
+    "footer": "© 2026 VisionApp"
+  },
+  "Features": {
+    "instantInferenceTitle": "Magic in the blink of an eye",
+    "instantInferenceDesc": "Watch in awe as our advanced servers understand your photos instantly, bringing your visual stories to life before you even blink.",
+    "stateOfArtTitle": "Understands every emotion",
+    "stateOfArtDesc": "Powered by a brilliant AI brain, it doesn't just see objects — it feels the atmosphere, the context, and the emotion of your moments.",
+    "secureStorageTitle": "Your secrets stay safe",
+    "secureStorageDesc": "Your cherished moments are yours alone. We wrap every photo in ultimate security, ensuring your personal magic stays private."
+  },
+  "UploadCard": {
+    "fileTooLarge": "File is too large (max 10MB)",
+    "optimizing": "Optimizing image for AI...",
+    "uploading": "Uploading optimized image...",
+    "analyzing": "AI is analyzing (Moondream2)...",
+    "analysisComplete": "Analysis complete!",
+    "serverError": "Modal server is not responding or timed out (Cold Start). Please try again.",
+    "analysisFailed": "Analysis failed",
+    "dropImage": "Drop your image here",
+    "fileFormats": "PNG, JPG or WebP up to 10MB",
+    "thinking": "Thinking...",
+    "analyzePhoto": "Analyze Photo",
+    "aiInsight": "AI Insight",
+    "processAnother": "Process another image",
+    "aiPrompt": "Describe this image in detail."
+  }
+}

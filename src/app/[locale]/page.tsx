@@ -1,8 +1,12 @@
 import Header from "@/components/Header"
 import UploadCard from "@/components/UploadCard"
 import { Sparkles, Zap, Shield, Cpu } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 export default function Home() {
+  const t = useTranslations('Home');
+  const tFeatures = useTranslations('Features');
+
   return (
     <main className="min-h-screen relative overflow-hidden">
       {/* Background Gradients */}
@@ -16,16 +20,17 @@ export default function Home() {
         <div className="max-w-7xl mx-auto text-center space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-1000">
             <Sparkles size={16} className="text-blue-400" />
-            <span className="text-sm font-medium text-white/80">Powered by Moondream2 & Modal</span>
+            <span className="text-sm font-medium text-white/80">{t('badge')}</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white max-w-4xl mx-auto leading-[1.1] animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
-            Understand your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-white to-purple-400">images</span> with precision AI
+            {t.rich('title', {
+              highlight: (chunks) => <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-white to-purple-400">{chunks}</span>
+            })}
           </h1>
 
           <p className="text-lg md:text-xl text-white/40 max-w-2xl mx-auto font-light animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
-            High-performance vision analysis running on serverless GPUs. 
-            Upload any image and let our VLM describe it in seconds.
+            {t('subtitle')}
           </p>
 
           <div className="pt-8 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
@@ -38,24 +43,24 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-12">
           <FeatureCard 
             icon={<Zap className="text-yellow-400" />}
-            title="Instant Inference"
-            description="Leveraging Modal's global serverless GPU fleet for sub-second analysis."
+            title={tFeatures('instantInferenceTitle')}
+            description={tFeatures('instantInferenceDesc')}
           />
           <FeatureCard 
             icon={<Cpu className="text-blue-400" />}
-            title="State-of-the-Art Model"
-            description="Powered by Moondream2, optimized for both speed and visual reasoning."
+            title={tFeatures('stateOfArtTitle')}
+            description={tFeatures('stateOfArtDesc')}
           />
           <FeatureCard 
             icon={<Shield className="text-green-400" />}
-            title="Secure Storage"
-            description="Direct upload to Vercel Blob with signed URLs and secure processing."
+            title={tFeatures('secureStorageTitle')}
+            description={tFeatures('secureStorageDesc')}
           />
         </div>
       </section>
 
       <footer className="py-12 border-t border-white/5 text-center text-white/20 text-sm">
-        <p>&copy; 2026 VisionApp. Built for the modern web.</p>
+        <p>{t('footer')}</p>
       </footer>
     </main>
   )
