@@ -92,7 +92,8 @@ class Model:
         print(f"Analyzing image: {image_url}")
         try:
             async with httpx.AsyncClient(follow_redirects=True) as client:
-                response = await client.get(image_url, timeout=10)
+                headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
+                response = await client.get(image_url, headers=headers, timeout=20)
                 response.raise_for_status()
             img = Image.open(io.BytesIO(response.content))
         except Exception as e:
