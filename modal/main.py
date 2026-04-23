@@ -135,6 +135,6 @@ async def analyze_endpoint(request: VisionRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.function(image=image)
-@modal.asgi_app(label="analyze-v2")
+@modal.asgi_app()
 def vision_server():
     return web_app
