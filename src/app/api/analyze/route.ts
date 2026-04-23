@@ -22,9 +22,18 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Modal API error: ${response.status} ${errorText}`);
+      console.error(`Modal API error [${response.status}]:`, errorText);
+      
+      let errorMessage = response.statusText || `Status ${response.status}`;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.error || errorJson.detail || errorMessage;
+      } catch (e) {
+        errorMessage = errorText || errorMessage;
+      }
+
       return NextResponse.json(
-        { error: `Modal API failed: ${response.statusText}` },
+        { error: errorMessage },
         { status: response.status }
       );
     }

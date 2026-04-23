@@ -116,7 +116,8 @@ export default function UploadCard() {
       });
 
       if (!response.ok) {
-        throw new Error(`AI Analysis failed: ${response.statusText}`)
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || response.statusText || `Error ${response.status}`)
       }
 
       const data = await response.json()
@@ -129,7 +130,7 @@ export default function UploadCard() {
       toast.success(t('analysisComplete'))
     } catch (error: any) {
       console.error("Upload error details:", error)
-      let errorMessage = "An unexpected error occurred"
+      let errorMessage = t('serverError')
       
       if (error instanceof Error) {
         if (error.message.includes("Failed to fetch") || error.message.includes("Load failed")) {
