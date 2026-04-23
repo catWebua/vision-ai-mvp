@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const modalApiUrl = process.env.MODAL_API_URL || 'https://catwebua--vision-mvp-v2-vision-server.modal.run/analyze';
     const finalUrl = modalApiUrl.endsWith('/analyze') ? modalApiUrl : `${modalApiUrl}/analyze`;
 
-    console.error(`!!! PROXYING TO MODAL URL: ${finalUrl} !!!`);
+    console.error(`MODAL_URL:${finalUrl}`);
     console.log(`Proxying request to Modal: ${finalUrl}`);
 
     const response = await fetch(finalUrl, {
