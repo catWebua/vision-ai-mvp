@@ -112,12 +112,27 @@ def health():
 
 @web_app.post("/analyze")
 async def analyze_endpoint(request: VisionRequest):
+    print(f"Received request: lang={request.language}, prompt={request.prompt}")
     model = Model()
-    answer = await model.predict.remote.aio(request.image_url, request.prompt)
-    if request.language == "uk":
-        from deep_translator import GoogleTranslator
-        answer = GoogleTranslator(source='auto', target='uk').translate(answer)
-    return {"answer": answer}
+    try:
+        answer = await model.predict.remote.aio(request.image_url, request.prompt)
+        
+        # Localize answer if requested
+        if request.language == "uk":
+            try:
+                print("Translating response to Ukrainian...")
+                from deep_translator import GoogleTranslator
+                answer = GoogleTranslator(source='auto', target='uk').translate(answer)
+                print("Translation successful")
+            except Exception as e:
+                print(f"Translation error: {e}")
+                # Fallback to English if translation fails
+        
+        return {"answer": answer}
+    except Exception as e:
+        print(f"Inference error: {e}")
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.function(image=image)
 @modal.asgi_app(label="analyze-v2")
