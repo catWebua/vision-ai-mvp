@@ -16,19 +16,19 @@ export default function Header() {
           <span className="text-xl font-bold tracking-tight text-white">{t('title')}</span>
         </Link>
         
-        <nav className="hidden md:flex items-center gap-6">
-          <Link href="#features" className="text-sm font-medium text-white/60 hover:text-white transition-colors">{t('features')}</Link>
-          <div className="flex items-center gap-2 ml-4">
-            <Link href="/" locale="en" className={`text-xs font-medium px-2 py-1 rounded-md border transition-colors ${locale === 'en' ? 'text-black bg-white border-white shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-white/60 border-white/10 hover:text-white hover:bg-white/10'}`}>EN</Link>
-            <Link href="/" locale="uk" className={`text-xs font-medium px-2 py-1 rounded-md border transition-colors ${locale === 'uk' ? 'text-black bg-white border-white shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-white/60 border-white/10 hover:text-white hover:bg-white/10'}`}>UK</Link>
+        <nav className="flex items-center gap-3 sm:gap-6">
+          <Link href="#features" className="hidden sm:block text-sm font-medium text-white/60 hover:text-white transition-colors">{t('features')}</Link>
+          <div className="flex items-center gap-1.5 sm:gap-2 sm:ml-4">
+            <Link href="/" locale="en" className={`text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md border transition-colors ${locale === 'en' ? 'text-black bg-white border-white shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-white/60 border-white/10 hover:text-white hover:bg-white/10'}`}>EN</Link>
+            <Link href="/" locale="uk" className={`text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md border transition-colors ${locale === 'uk' ? 'text-black bg-white border-white shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-white/60 border-white/10 hover:text-white hover:bg-white/10'}`}>UK</Link>
           </div>
           <a 
-            href="https://github.com/alexi" 
+            href="https://github.com/catWebua/vision-ai-mvp" 
             target="_blank" 
             rel="noreferrer"
-            className="p-2 rounded-full border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all ml-2"
+            className="p-1.5 sm:p-2 rounded-full border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all ml-1 sm:ml-2"
           >
-            <Globe size={20} />
+            <Globe size={18} className="sm:w-5 sm:h-5" />
           </a>
         </nav>
       </div>
