@@ -103,11 +103,9 @@ export default function UploadCard() {
       setIsAnalyzing(true)
       setStatus(t('analyzing'))
 
-      // 3. Direct call to Modal API
-      const modalApiUrl = process.env.NEXT_PUBLIC_MODAL_API_URL || 'https://catwebua--analyze-v2.modal.run';
-      const finalUrl = modalApiUrl.endsWith('/analyze') ? modalApiUrl : `${modalApiUrl}/analyze`;
-      
-      const response = await fetch(finalUrl, {
+      // 3. Call our local API proxy (which then calls Modal)
+      // This avoids CORS issues and provides a more stable connection
+      const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
