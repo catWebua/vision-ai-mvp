@@ -5,8 +5,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { image_url, prompt, language } = body;
 
-    const modalApiUrl = process.env.MODAL_API_URL || 'https://catwebua--vision-mvp-v2-vision-server.modal.run/analyze';
-    const finalUrl = modalApiUrl.endsWith('/analyze') ? modalApiUrl : `${modalApiUrl}/analyze`;
+    // Using hardcoded URL because MODAL_API_URL on Vercel is pointing to an old deployment
+    const finalUrl = 'https://catwebua--vision-mvp-v2-vision-server.modal.run/analyze';
 
     const response = await fetch(finalUrl, {
       method: 'POST',
