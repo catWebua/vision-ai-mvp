@@ -91,8 +91,9 @@ class Model:
         start_inf = time.time()
         print(f"Analyzing image: {image_url}")
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(follow_redirects=True) as client:
                 response = await client.get(image_url, timeout=10)
+                response.raise_for_status()
             img = Image.open(io.BytesIO(response.content))
         except Exception as e:
             return f"Error loading image: {str(e)}"
